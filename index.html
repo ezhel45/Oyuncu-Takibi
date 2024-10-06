@@ -38,8 +38,8 @@
             padding: 12px;
             text-align: left;
             border-bottom: 1px solid #ddd;
-            color: #000; /* Yazı rengi siyah */
-            background-color: rgba(255, 255, 255, 0.9); /* Arka plan rengi beyazı biraz koyulaştırdık */
+            color: #000;
+            background-color: rgba(255, 255, 255, 0.9);
         }
 
         th {
@@ -64,14 +64,13 @@
         }
 
         .status-zamani-azalıyor {
-            color: #FFD700; /* Koyu sarı renk (gold) */
+            color: #FFD700;
         }
 
         .countdown {
             font-weight: bold;
         }
 
-        /* Duruma göre renkler */
         .countdown-devam-ediyor {
             color: green;
         }
@@ -81,7 +80,7 @@
         }
 
         .countdown-zamani-azalıyor {
-            color: #FFD700; /* Koyu sarı renk (gold) */
+            color: #FFD700;
         }
     </style>
 </head>
@@ -108,7 +107,7 @@
         </table>
     </div>
 
-    <script src="index_script.js"></script> <!-- JavaScript dosyasını dahil ettik -->
+    <script src="index_script.js"></script>
     <script>
         function displayPlayers(players) {
             const playerTableBody = document.getElementById('playerTableBody');
@@ -148,10 +147,9 @@
             });
         }
 
-        // Sayfa yüklendiğinde oyuncuları göster
         window.onload = () => {
             const players = JSON.parse(localStorage.getItem('players')) || [];
-            displayPlayers(players); // Tüm oyuncuları göster
+            displayPlayers(players);
         };
 
         function calculateRemainingDays(entryDate, exitDate) {
@@ -184,14 +182,28 @@
                 hour12: false, 
                 timeZone: 'Europe/Istanbul' 
             };
-            return new Date(dateTime).toLocaleString('tr-TR', options); // Türkiye'ye göre tarih formatı
+            return new Date(dateTime).toLocaleString('tr-TR', options);
         }
 
-        // Geri sayımı sürekli güncelle
         setInterval(() => {
-            const players = JSON.parse(localStorage.getItem('players')) || []; // Oyuncuları al
-            displayPlayers(players); // Güncellenmiş oyuncuları göster
+            const players = JSON.parse(localStorage.getItem('players')) || [];
+            displayPlayers(players);
         }, 1000); 
     </script>
+
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+    var Tawk_API=Tawk_API||{}, Tawk_LoadStart=new Date();
+    (function(){
+    var s1=document.createElement("script"),s0=document.getElementsByTagName("script")[0];
+    s1.async=true;
+    s1.src='https://embed.tawk.to/6702a1aa37379df10df2f18e/1i9h4f0fi';
+    s1.charset='UTF-8';
+    s1.setAttribute('crossorigin','*');
+    s0.parentNode.insertBefore(s1,s0);
+    })();
+    </script>
+    <!--End of Tawk.to Script-->
+
 </body>
 </html>
