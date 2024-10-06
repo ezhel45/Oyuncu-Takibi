@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oyuncu Takip Sistemi</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('https://i.hizliresim.com/eaopjn7.jpg');
+            background-size: cover;
+            background-position: center;
+            margin: 0;
+            padding: 20px;
+            color: #fff;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+            color: #000; /* Yazı rengi siyah */
+            background-color: rgba(255, 255, 255, 0.9); /* Arka plan rengi beyazı biraz koyulaştırdık */
+        }
+
+        th {
+            background-color: #007BFF;
+            color: white;
+        }
+
+        tr:hover {
+            background-color: #f1f1f1;
+        }
+
+        .status {
+            font-weight: bold;
+        }
+
+        .status-devam-ediyor {
+            color: green;
+        }
+
+        .status-bitti {
+            color: red;
+        }
+
+        .status-zamani-azalıyor {
+            color: #FFD700; /* Koyu sarı renk (gold) */
+        }
+
+        .countdown {
+            font-weight: bold;
+        }
+
+        /* Duruma göre renkler */
+        .countdown-devam-ediyor {
+            color: green;
+        }
+
+        .countdown-bitti {
+            color: red;
+        }
+
+        .countdown-zamani-azalıyor {
+            color: #FFD700; /* Koyu sarı renk (gold) */
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Oyuncu Takip Sistemi</h1>
+
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Oyuncu Adı</th>
+                    <th>Class</th>
+                    <th>Giriş Tarihi</th>
+                    <th>Çıkış Tarihi</th>
+                    <th>Kalan Gün</th>
+                    <th>Geri Sayım</th>
+                    <th>Durum</th>
+                </tr>
+            </thead>
+            <tbody id="playerTableBody">
+                <!-- Oyuncu bilgileri buraya eklenecek -->
+            </tbody>
+        </table>
+    </div>
+
+    <script src="index_script.js"></script> <!-- JavaScript dosyasını dahil ettik -->
+    <script>
+        function displayPlayers(players) {
+            const playerTableBody = document.getElementById('playerTableBody');
+            playerTableBody.innerHTML = ''; // Mevcut içeriği temizle
+
+            players.forEach(player => {
+                const newRow = document.createElement('tr');
+                const remainingDays = calculateRemainingDays(player.entryDate, player.exitDate);
+                const countdown = remainingDays > 0 ? calculateCountdown(player.exitDate) : "0 gün 0 saat 0 dakika 0 saniye"; // Süresi bitenler için geri sayımı sıfırla
+
+                const exitDate = new Date(player.exitDate);
+                const now = new Date();
+                const timeLeftInHours = (exitDate - now) / (1000 * 60 * 60); // Saat cinsinden kalan zaman
+
+                let statusClass = remainingDays > 0 ? 'status-devam-ediyor' : 'status-bitti'; // Durum sınıfı belirle
+                let statusText = remainingDays > 0 ? 'Devam Ediyor' : 'Bitti'; // Durum metni
+
+                let countdownClass = 'countdown-devam-ediyor'; // Varsayılan sınıf
+                if (timeLeftInHours <= 12 && timeLeftInHours > 0) {
+                    statusClass = 'status-zamani-azalıyor'; // 12 saat kalınca durum sınıfını değiştir
+                    statusText = 'Zamanı Azalıyor'; // Durum metnini değiştir
+                    countdownClass = 'countdown-zamani-azalıyor'; // Geri sayım için sınıfı ayarla
+                } else if (remainingDays <= 0) {
+                    countdownClass = 'countdown-bitti'; // Geri sayım bitmişse sınıfı ayarla
+                }
+
+                newRow.innerHTML = `
+                    <td>${player.name}</td>
+                    <td>${player.class}</td>
+                    <td>${formatDateTime(player.entryDate)}</td>
+                    <td>${formatDateTime(player.exitDate)}</td>
+                    <td>${remainingDays} gün</td>
+                    <td class="${countdownClass}">${countdown}</td>
+                    <td class="status ${statusClass}">${statusText}</td>
+                `;
+                playerTableBody.appendChild(newRow);
+            });
+        }
+
+        // Sayfa yüklendiğinde oyuncuları göster
+        window.onload = () => {
+            const players = JSON.parse(localStorage.getItem('players')) || [];
+            displayPlayers(players); // Tüm oyuncuları göster
+        };
+
+        function calculateRemainingDays(entryDate, exitDate) {
+            const entry = new Date(entryDate);
+            const exit = new Date(exitDate);
+            const timeDiff = exit - entry;
+            const daysRemaining = Math.ceil(timeDiff / (1000 * 3600 * 24));
+            return daysRemaining >= 0 ? daysRemaining : 0;
+        }
+
+        function calculateCountdown(exitDate) {
+            const now = new Date();
+            const exit = new Date(exitDate);
+            const timeDiff = exit - now;
+            const days = Math.floor(timeDiff / (1000 * 3600 * 24));
+            const hours = Math.floor((timeDiff % (1000 * 3600 * 24)) / (1000 * 3600));
+            const minutes = Math.floor((timeDiff % (1000 * 3600)) / (1000 * 60));
+            const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+
+            return `${days} gün ${hours} saat ${minutes} dakika ${seconds} saniye`;
+        }
+
+        function formatDateTime(dateTime) {
+            const options = { 
+                year: 'numeric', 
+                month: '2-digit', 
+                day: '2-digit', 
+                hour: '2-digit', 
+                minute: '2-digit', 
+                hour12: false, 
+                timeZone: 'Europe/Istanbul' 
+            };
+            return new Date(dateTime).toLocaleString('tr-TR', options); // Türkiye'ye göre tarih formatı
+        }
+
+        // Geri sayımı sürekli güncelle
+        setInterval(() => {
+            const players = JSON.parse(localStorage.getItem('players')) || []; // Oyuncuları al
+            displayPlayers(players); // Güncellenmiş oyuncuları göster
+        }, 1000); 
+    </script>
+</body>
+</html>
